@@ -7,3 +7,6 @@ MUJOCO_LOG.TXT
 ;
 /.venv/
 /logs/
+# pixi environments
+.pixi
+*.egg-info
