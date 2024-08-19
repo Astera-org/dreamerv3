@@ -6,4 +6,4 @@ optax
 tensorflow_probability
 crafter
 gym
-numpy
+numpy~=1.0
