@@ -39,5 +39,5 @@ dreamerv3 = { path = ".", editable = true }
 
 [tool.pixi.dependencies]
 gymnasium = ">=0.29.1,<0.30"
-minetest-boad = ">=0.7,<1"
-minetest-gymnasium = { version = ">=0.7,<1", channel = "https://repo.prefix.dev/obelisk" }
+minetest-boad = ">=0.12,<1"
+minetest-gymnasium = { version = ">=0.16,<1", channel = "https://repo.prefix.dev/obelisk" }
