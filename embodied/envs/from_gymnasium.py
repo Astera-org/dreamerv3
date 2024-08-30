@@ -58,7 +58,8 @@ class FromGymnasium(embodied.Env):
   def step(self, action):
     if action['reset'] or self._done:
       self._done = False
-      obs = self._env.reset()
+      (obs, _info) = self._env.reset()
+      # TODO: Not sure if we can discard this info object. 
       return self._obs(obs, 0.0, is_first=True)
     if self._act_dict:
       action = self._unflatten(action)
