@@ -11,14 +11,13 @@ def main():
 
   config = embodied.Config(dreamerv3.Agent.configs['defaults'])
   config = config.update({
-      **dreamerv3.Agent.configs['size100m'],
+      **dreamerv3.Agent.configs['size12m'],
       'logdir': f'~/logdir/{embodied.timestamp()}-example',
       'run.train_ratio': 32,
       'enc.simple.minres': 8,
       'dec.simple.minres': 8,
       'run.driver_parallel': False,
       'run.num_envs': 1,
-      # 'run.num_envs_eval': 1,
   })
   config = embodied.Flags(config).parse()
 
