@@ -159,8 +159,9 @@ size50m: &size50m
   dyn.rssm: {deter: 4096, hidden: 512, classes: 32}
   .*\.depth: 32
   .*\.units: 512
+# hidden corresponds to dense hidden units table in paper?
 
-size100m: &size100m
+size100m: &size100m 
   dyn.rssm: {deter: 6144, hidden: 768, classes: 48}
   .*\.depth: 48
   .*\.units: 768
