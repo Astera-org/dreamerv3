@@ -14,10 +14,11 @@ def main():
       **dreamerv3.Agent.configs['size12m'],
       'logdir': f'~/logdir/{embodied.timestamp()}-example',
       'run.train_ratio': 32,
-      'enc.simple.minres': 8,
-      'dec.simple.minres': 8,
-      'run.driver_parallel': False,
+      'enc.simple.minres': 8, # solves shape mismatch
+      'dec.simple.minres': 8, # solves shape mismatch
+      'run.driver_parallel': False, # allows seeing stacktrace when env fails
       'run.num_envs': 1,
+      'batch_size': 1, # oom
   })
   config = embodied.Flags(config).parse()
 
