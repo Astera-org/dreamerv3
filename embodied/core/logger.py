@@ -315,16 +315,14 @@ class WandBOutput:
 
 class MLFlowOutput:
 
-  def __init__(self, pattern=r'.*'):
+  def __init__(self):
     import mlflow
     self._mlflow = mlflow
-    self._pattern = pattern
 
   def __call__(self, summaries):
     bystep = collections.defaultdict(dict)
     for step, name, value in summaries:
-      if len(value.shape) == 0 and self._pattern.search(name):
-        name = f'{self._prefix}/{name}' if self._prefix else name
+      if len(value.shape) == 0:
         bystep[step][name] = float(value)
     for step, metrics in bystep.items():
       self._mlflow.log_metrics(metrics, step=step)
