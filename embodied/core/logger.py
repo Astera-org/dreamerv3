@@ -315,9 +315,10 @@ class WandBOutput:
 
 class MLFlowOutput:
 
-  def __init__(self):
+  def __init__(self, pattern=r'.*'):
     import mlflow
     self._mlflow = mlflow
+    self._pattern = pattern
 
   def __call__(self, summaries):
     bystep = collections.defaultdict(dict)
