@@ -324,7 +324,27 @@ class MLFlowOutput:
     for step, name, value in summaries:
       bystep[step][name] = value
     for step, metrics in bystep.items():
-      self._mlflow.log_metrics(metrics, step=step)
+      for name, value in metrics.items():
+        if isinstance(value, str):
+          # No step allowed?
+          self._mlflow.log_text(metrics, step=step)
+        if isinstance(value, np.ndarray):
+          rank = len(value.shape)
+          if rank == 0:
+            # TODO: Check if value is scalar?
+            value = float(value[0])
+            self._mlflow.log_metric(name, value, step=step)
+          elif rank == 1:
+            # TODO: Support vectors?
+            pass
+          elif rank in (2,3):
+            # TODO: Support images?
+            pass
+          elif rank == 4:
+            # TODO: Support video?
+            pass
+          else:
+            raise ValueError("too many dimensions")
 
 
 class ExpaOutput:
