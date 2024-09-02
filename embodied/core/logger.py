@@ -322,8 +322,7 @@ class MLFlowOutput:
   def __call__(self, summaries):
     bystep = collections.defaultdict(dict)
     for step, name, value in summaries:
-      if len(value.shape) == 0:
-        bystep[step][name] = float(value)
+      bystep[step][name] = value
     for step, metrics in bystep.items():
       self._mlflow.log_metrics(metrics, step=step)
 
