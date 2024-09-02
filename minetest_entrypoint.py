@@ -1,13 +1,17 @@
+import os
 import warnings
 from functools import partial as bind
 
 import dreamerv3
 import embodied
+import mlflow
 
 warnings.filterwarnings('ignore', '.*truncated to dtype int32.*')
 
-
 def main():
+  mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", "databricks"))
+  mlflow.set_experiment("/Shared/dreamerv3_hafner_minetest")
+  mlflow.config.enable_async_logging(True)
 
   config = embodied.Config(dreamerv3.Agent.configs['defaults'])
   config = config.update({
@@ -39,6 +43,7 @@ def main():
         embodied.logger.TerminalOutput(config.filter),
         embodied.logger.JSONLOutput(logdir, 'metrics.jsonl'),
         embodied.logger.TensorBoardOutput(logdir),
+        embodied.logger.MLFlowOutput()
         # embodied.logger.WandbOutput(logdir.name, config=config),
     ])
 
@@ -63,11 +68,12 @@ def main():
       replay_context=config.replay_context,
   )
 
-  embodied.run.train(
-      bind(make_agent, config),
-      bind(make_replay, config),
-      bind(make_env, config),
-      bind(make_logger, config), args)
+  with mlflow.start_run():
+    embodied.run.train(
+        bind(make_agent, config),
+        bind(make_replay, config),
+        bind(make_env, config),
+        bind(make_logger, config), args)
 
 
 if __name__ == '__main__':
