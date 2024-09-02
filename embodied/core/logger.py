@@ -327,8 +327,9 @@ class MLFlowOutput:
     for step, metrics in bystep.items():
       for name, value in metrics.items():
         if isinstance(value, str):
-          # No step allowed?
-          self._mlflow.log_text(value)
+            # TODO: Collect text logs and send at the end? 
+            # self._mlflow.log_text(value)
+            pass
         elif isinstance(value, Number):
           self._mlflow.log_metric(name, float(value), step=step)
         elif isinstance(value, np.ndarray):
@@ -336,8 +337,9 @@ class MLFlowOutput:
           if rank == 0:
             value = value.item()
             if isinstance(value, str):
-              # No step allowed?
-              self._mlflow.log_text(value)
+              # TODO: Collect text logs and send at the end? 
+              # self._mlflow.log_text(value)
+              pass
             elif isinstance(value, Number):
               self._mlflow.log_metric(name, float(value), step=step)
           elif rank == 1:
