@@ -1,6 +1,7 @@
 import collections
 import concurrent.futures
 import json
+from numbers import Number
 import os
 import re
 
@@ -327,13 +328,18 @@ class MLFlowOutput:
       for name, value in metrics.items():
         if isinstance(value, str):
           # No step allowed?
-          self._mlflow.log_text(metrics, step=step)
-        if isinstance(value, np.ndarray):
+          self._mlflow.log_text(value)
+        elif isinstance(value, Number):
+          self._mlflow.log_metric(name, float(value), step=step)
+        elif isinstance(value, np.ndarray):
           rank = len(value.shape)
           if rank == 0:
-            # TODO: Check if value is scalar?
-            value = float(value[0])
-            self._mlflow.log_metric(name, value, step=step)
+            value = value.item()
+            if isinstance(value, str):
+              # No step allowed?
+              self._mlflow.log_text(value)
+            elif isinstance(value, Number):
+              self._mlflow.log_metric(name, float(value), step=step)
           elif rank == 1:
             # TODO: Support vectors?
             pass
