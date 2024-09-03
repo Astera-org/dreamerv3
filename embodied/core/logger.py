@@ -342,6 +342,9 @@ class MLFlowOutput:
               pass
             elif isinstance(value, Number):
               self._mlflow.log_metric(name, float(value), step=step)
+            else:
+              # TODO: What is this and how do we log it?
+              pass
           elif rank == 1:
             # TODO: Support vectors?
             pass
