@@ -230,6 +230,14 @@ crafter:
   enc.spaces: 'image'
   dec.spaces: 'image'
 
+# TODO: Use config instead of entrypoint?
+minetest:
+  enc.spaces: 'image|health|hunger|thirst'
+  dec.spaces: 'image|health|hunger|thirst'
+  run:
+    log_video_fps: 6
+    train_ratio: 512
+
 dmc_proprio:
   <<: *size12m
   task: dmc_walker_walk
