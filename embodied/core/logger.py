@@ -349,7 +349,7 @@ class MLFlowOutput:
             # TODO: Support vectors?
             pass
           elif rank in (2,3):
-            # TODO: Support images?
+            self._mlflow.log_image(value, key=name, step=step)
             pass
           elif rank == 4:
             # TODO: Support video?
