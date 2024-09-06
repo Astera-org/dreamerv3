@@ -2,6 +2,8 @@ import os
 import warnings
 from functools import partial as bind
 
+import jax
+
 import dreamerv3
 import embodied
 import mlflow
@@ -13,13 +15,17 @@ def main():
   mlflow.set_experiment("/Shared/dreamerv3_hafner_minetest")
   mlflow.config.enable_async_logging(True)
 
+  jax.config.update("jax_compilation_cache_dir", "./jax_cache/")
+  jax.config.update("jax_persistent_cache_min_entry_size_bytes", -1)
+  jax.config.update("jax_persistent_cache_min_compile_time_secs", 0)
+
   config = embodied.Config(dreamerv3.Agent.configs['defaults'])
   config = config.update({
       **dreamerv3.Agent.configs['size50m'],
-      'logdir': f'~/logdir/{embodied.timestamp()}-example',
+      'logdir': f'./logs/{embodied.timestamp()}/',
       'run.log_video_fps': 6,
       'run.train_ratio': 512,
-      # 'run.driver_parallel': False, # allows seeing stacktrace when env fails
+      # Set 'run.driver_parallel': False and 'run.num_envs': 1 to see stacktrace when env fails.
       'run.num_envs': 32,
       'enc.simple.minres': 8, # solves shape mismatch
       'dec.simple.minres': 8, # solves shape mismatch
@@ -72,6 +78,8 @@ def main():
   )
 
   with mlflow.start_run():
+    mlflow.log_artifact(logdir / 'config.yaml', 'config.yaml')
+
     embodied.run.train(
         bind(make_agent, config),
         bind(make_replay, config),
