@@ -31,7 +31,7 @@ def main():
       'dec.simple.minres': 8, # solves shape mismatch
       'enc.spaces': 'image|health|hunger|thirst',
       'dec.spaces': 'image|health|hunger|thirst',
-      'batch_size': 1, # oom
+      'batch_size': 2, # oom
   })
   config = embodied.Flags(config).parse()
 
@@ -78,7 +78,7 @@ def main():
   )
 
   with mlflow.start_run():
-    mlflow.log_artifact(logdir / 'config.yaml', 'config.yaml')
+    mlflow.log_artifact(logdir / 'config.yaml')
 
     embodied.run.train(
         bind(make_agent, config),
