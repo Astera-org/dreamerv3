@@ -15,12 +15,12 @@ def main():
 
   config = embodied.Config(dreamerv3.Agent.configs['defaults'])
   config = config.update({
-      **dreamerv3.Agent.configs['size100m'],
+      **dreamerv3.Agent.configs['size50m'],
       'logdir': f'~/logdir/{embodied.timestamp()}-example',
       'run.log_video_fps': 6,
       'run.train_ratio': 512,
       'run.driver_parallel': False, # allows seeing stacktrace when env fails
-      'run.num_envs': 1,
+      'run.num_envs': 32,
       'enc.simple.minres': 8, # solves shape mismatch
       'dec.simple.minres': 8, # solves shape mismatch
       'enc.spaces': 'image|health|hunger|thirst',
