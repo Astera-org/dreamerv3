@@ -31,7 +31,7 @@ def main():
       'dec.simple.minres': 8, # solves shape mismatch
       'enc.spaces': 'image|health|hunger|thirst',
       'dec.spaces': 'image|health|hunger|thirst',
-      'batch_size': 2, # oom
+      'batch_size': 16, # oom
   })
   config = embodied.Flags(config).parse()
 
