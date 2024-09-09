@@ -26,12 +26,12 @@ def main():
       'run.log_video_fps': 6,
       'run.train_ratio': 512,
       # Set 'run.driver_parallel': False and 'run.num_envs': 1 to see stacktrace when env fails.
-      'run.num_envs': 32,
+      'run.num_envs': 8,
       'enc.simple.minres': 8, # solves shape mismatch
       'dec.simple.minres': 8, # solves shape mismatch
       'enc.spaces': 'image|health|hunger|thirst',
       'dec.spaces': 'image|health|hunger|thirst',
-      'batch_size': 16, # oom
+      'batch_size': 4, # oom
   })
   config = embodied.Flags(config).parse()
 
