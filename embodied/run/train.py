@@ -23,7 +23,15 @@ def train(make_agent, make_replay, make_env, make_logger, args):
   policy_fps = embodied.FPS()
   train_fps = embodied.FPS()
 
+  # batch_length: 65
+  # batch_length_eval: 33
+  # batch_size: 4
+  # replay_context: 1
+
   batch_steps = args.batch_size * (args.batch_length - args.replay_context)
+  # 4 * (65 - 1) = 256
+  # should_train = Ratio(2.0)
+
   should_expl = embodied.when.Until(args.expl_until)
   should_train = embodied.when.Ratio(args.train_ratio / batch_steps)
   should_log = embodied.when.Clock(args.log_every)

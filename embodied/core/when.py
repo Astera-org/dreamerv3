@@ -41,6 +41,14 @@ class Ratio:
     self._prev += repeats / self._ratio
     return repeats
 
+# ratio 2
+# input   repeats   self._prev
+# 0   ->   1        0
+# 1   ->   2        1
+# 2   ->   2        1
+# 3   ->   4        2
+# 4   ->   4        2
+# 5   ->   6        3
 
 class Once:
 

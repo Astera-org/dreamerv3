@@ -96,7 +96,9 @@ def train_eval(
   def train_step(tran, worker):
     if len(train_replay) < args.batch_size or step < args.train_fill:
       return
-    for _ in range(should_train(step)):
+    num_train_steps = should_train(step)
+    # TODO: log num_train_steps
+    for _ in range(num_train_steps):
       with embodied.timer.section('dataset_next'):
         batch = next(dataset_train)
       outs, carry[0], mets = agent.train(batch, carry[0])
