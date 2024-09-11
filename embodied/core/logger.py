@@ -396,8 +396,12 @@ def _encode_gif(frames, fps):
   proc = Popen(cmd.split(' '), stdin=PIPE, stdout=PIPE, stderr=PIPE)
   for image in frames:
     proc.stdin.write(image.tobytes())
-  out, err = proc.communicate()
-  if proc.returncode:
-    raise IOError('\n'.join([' '.join(cmd), err.decode('utf8')]))
+  try:
+    out, err = proc.communicate()
+    if proc.returncode:
+      raise IOError(f'Failed to run {cmd}\n{err.decode('utf8')}')
+  except Exception as e:
+    printing.print_(f'Failed to run {cmd}')
+    raise e
   del proc
   return out
