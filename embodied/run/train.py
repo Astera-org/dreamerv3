@@ -44,6 +44,7 @@ def train(make_agent, make_replay, make_env, make_logger, args):
     if worker < args.log_video_streams:
       for key in args.log_keys_video:
         if key in tran:
+          logger.image(f'obs/{key}', tran[key])
           episode.add(f'policy_{key}', tran[key], agg='stack')
     for key, value in tran.items():
       if re.match(args.log_keys_sum, key):
