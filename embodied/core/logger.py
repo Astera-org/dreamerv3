@@ -1,16 +1,16 @@
 import collections
 import concurrent.futures
 import json
-from numbers import Number
-import os
 import re
+from pathlib import Path
+from PIL import Image
 
 import numpy as np
 
+from ._encode_gif import encode_gif
 from . import path
 from . import printing
 from . import timer
-
 
 class Logger:
 
@@ -245,9 +245,9 @@ class TensorBoardOutput(AsyncOutput):
           tf.summary.image(name, value[None], step)
         elif len(value.shape) == 4 and self._videos:
           self._video_summary(name, value, step)
-      except Exception:
-        print('Error writing summary:', name)
-        raise
+      except Exception as e:
+        print(f'Error writing summary {name}: {e}')
+        raise e
     self._writer.flush()
 
   @timer.section('tensorboard_check')
@@ -268,7 +268,7 @@ class TensorBoardOutput(AsyncOutput):
       T, H, W, C = video.shape
       summary = tf1.Summary()
       image = tf1.Summary.Image(height=H, width=W, colorspace=C)
-      image.encoded_image_string = _encode_gif(video, self._fps)
+      image.encoded_image_string = encode_gif(video, self._fps)
       summary.value.add(tag=name, image=image)
       tf.summary.experimental.write_raw_pb(summary.SerializeToString(), step)
     except (IOError, OSError) as e:
@@ -314,50 +314,6 @@ class WandBOutput:
       self._wandb.log(metrics, step=step)
 
 
-class MLFlowOutput:
-
-  def __init__(self):
-    import mlflow
-    self._mlflow = mlflow
-
-  def __call__(self, summaries):
-    bystep = collections.defaultdict(dict)
-    for step, name, value in summaries:
-      bystep[step][name] = value
-    for step, metrics in bystep.items():
-      for name, value in metrics.items():
-        if isinstance(value, str):
-            # TODO: Collect text logs and send at the end? 
-            # self._mlflow.log_text(value)
-            pass
-        elif isinstance(value, Number):
-          self._mlflow.log_metric(name, float(value), step=step)
-        elif isinstance(value, np.ndarray):
-          rank = len(value.shape)
-          if rank == 0:
-            value = value.item()
-            if isinstance(value, str):
-              # TODO: Collect text logs and send at the end? 
-              # self._mlflow.log_text(value)
-              pass
-            elif isinstance(value, Number):
-              self._mlflow.log_metric(name, float(value), step=step)
-            else:
-              # TODO: What is this and how do we log it?
-              pass
-          elif rank == 1:
-            # TODO: Support vectors?
-            pass
-          elif rank in (2,3):
-            self._mlflow.log_image(value, key=name, step=step)
-            pass
-          elif rank == 4:
-            # TODO: Support video?
-            pass
-          else:
-            raise ValueError("too many dimensions")
-
-
 class ExpaOutput:
 
   def __init__(self, exp, run, project, user, config=None):
@@ -381,28 +337,3 @@ class ExpaOutput:
       bystep[step][name] = value
     for step, metrics in bystep.items():
       self._expa.log(metrics, step)
-
-
-@timer.section('gif')
-def _encode_gif(frames, fps):
-  from subprocess import Popen, PIPE
-  h, w, c = frames[0].shape
-  pxfmt = {1: 'gray', 3: 'rgb24'}[c]
-  cmd = ' '.join([
-      'ffmpeg -y -f rawvideo -vcodec rawvideo',
-      f'-r {fps:.02f} -s {w}x{h} -pix_fmt {pxfmt} -i - -filter_complex',
-      '[0:v]split[x][z];[z]palettegen[y];[x]fifo[x];[x][y]paletteuse',
-      f'-r {fps:.02f} -f gif -'])
-  proc = Popen(cmd.split(' '), stdin=PIPE, stdout=PIPE, stderr=PIPE)
-  for image in frames:
-    proc.stdin.write(image.tobytes())
-  try:
-    out, err = proc.communicate()
-    if proc.returncode:
-      err_utf8 = err.decode('utf8')
-      raise IOError(f'Failed to run {cmd}\n{err_utf8}')
-  except Exception as e:
-    printing.print_(f'Failed to run {cmd}')
-    raise e
-  del proc
-  return out

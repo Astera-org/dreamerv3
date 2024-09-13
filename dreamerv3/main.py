@@ -5,6 +5,8 @@ import sys
 import warnings
 from functools import partial as bind
 
+import jax
+
 import embodied
 from embodied import wrappers
 from embodied.envs import from_gymnasium
@@ -27,6 +29,11 @@ def main(argv=None):
   embodied.print(r"--- |   \ _ _ ___ __ _ _ __  ___ _ \ \ / /__ / ---")
   embodied.print(r"--- | |) | '_/ -_) _` | '  \/ -_) '/\ V / |_ \ ---")
   embodied.print(r"--- |___/|_| \___\__,_|_|_|_\___|_|  \_/ |___/ ---")
+
+  # TODO: Maybe this needs to live somewhere else, maybe the jax agent.
+  jax.config.update("jax_compilation_cache_dir", "./jax_cache/")
+  jax.config.update("jax_persistent_cache_min_entry_size_bytes", -1)
+  jax.config.update("jax_persistent_cache_min_compile_time_secs", 0)
 
   from . import agent as agt
   parsed, other = embodied.Flags(configs=['defaults']).parse_known(argv)
@@ -148,14 +155,21 @@ def make_agent(config):
 
 def make_logger(config):
   step = embodied.Counter()
-  logdir = config.logdir
   multiplier = config.env.get(config.task.split('_')[0], {}).get('repeat', 1)
   logger = embodied.Logger(step, [
       embodied.logger.TerminalOutput(config.filter, 'Agent'),
-      embodied.logger.JSONLOutput(logdir, 'metrics.jsonl'),
-      embodied.logger.JSONLOutput(logdir, 'scores.jsonl', 'episode/score'),
+      embodied.logger.JSONLOutput(config.logdir, 'metrics.jsonl'),
+      embodied.logger.JSONLOutput(config.logdir, 'scores.jsonl', 'episode/score'),
       embodied.logger.TensorBoardOutput(
-          logdir, config.run.log_video_fps, config.tensorboard_videos),
+        config.logdir,
+        fps=config.run.log_video_fps,
+        videos=config.tensorboard_videos
+      ),
+      embodied.logger_mlflow.MLFlowOutput(
+        config,
+        tracking_uri=os.environ.get("MLFLOW_TRACKING_URI", "databricks"),
+        experiment_name=f"/Shared/dreamerv3_hafner_{config.task}",
+      ),
       # embodied.logger.WandbOutput(logdir.name, ...),
   ], multiplier)
   return logger

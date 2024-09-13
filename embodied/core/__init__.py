@@ -23,6 +23,7 @@ from .random_agent import RandomAgent
 from .uuid import uuid
 
 from . import logger
+from . import logger_mlflow
 from . import when
 from . import wrappers
 from . import timer
