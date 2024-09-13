@@ -706,7 +706,7 @@ packages:
   name: dreamerv3
   version: 0.1.0
   path: .
-  sha256: aa8cd267962fdd052bbe1e45ff0454097a1f55d82b4965fe4742908de1e6c3c5
+  sha256: 9f55dbdbcb59a95ce9d8d927f23ede81b9c311446870d3a434f00217b111493a
   requires_dist:
   - numpy~=1.0
   - cloudpickle

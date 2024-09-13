@@ -1,12 +1,17 @@
 import re
 from collections import defaultdict
 from functools import partial as bind
+from typing import Callable
 
+from dreamerv3.agent import Agent
 import embodied
 import numpy as np
 
+from embodied.core.base import Replay
+from embodied.core.logger import Logger
 
-def train(make_agent, make_replay, make_env, make_logger, args):
+
+def train(make_agent: Callable[[], Agent], make_replay: Callable[[], Replay], make_env, make_logger: Callable[[], Logger], args):
 
   agent = make_agent()
   replay = make_replay()
@@ -102,8 +107,10 @@ def train(make_agent, make_replay, make_env, make_logger, args):
   should_save(step)  # Register that we just saved.
 
   print('Start training loop')
-  policy = lambda *args: agent.policy(
-      *args, mode='explore' if should_expl(step) else 'train')
+
+  def policy(*args):
+    return agent.policy(*args, mode='explore' if should_expl(step) else 'train')
+
   driver.reset(agent.init_policy)
   while step < args.steps:
 

@@ -4,6 +4,7 @@ import json
 from numbers import Number
 import os
 import re
+import shlex
 
 import numpy as np
 
@@ -388,20 +389,31 @@ def _encode_gif(frames, fps):
   from subprocess import Popen, PIPE
   h, w, c = frames[0].shape
   pxfmt = {1: 'gray', 3: 'rgb24'}[c]
-  cmd = ' '.join([
-      'ffmpeg -y -f rawvideo -vcodec rawvideo',
-      f'-r {fps:.02f} -s {w}x{h} -pix_fmt {pxfmt} -i - -filter_complex',
-      '[0:v]split[x][z];[z]palettegen[y];[x]fifo[x];[x][y]paletteuse',
-      f'-r {fps:.02f} -f gif -'])
-  proc = Popen(cmd.split(' '), stdin=PIPE, stdout=PIPE, stderr=PIPE)
-  for image in frames:
-    proc.stdin.write(image.tobytes())
+  cmd = [
+    'ffmpeg',
+    '-y',
+    '-f', 'rawvideo',
+    '-vcodec', 'rawvideo',
+    '-r', f'{fps:.02f}',
+    '-s', f'{w}x{h}',
+    '-pix_fmt', f'{pxfmt}',
+    '-i', '-',
+    '-filter_complex', '[0:v]split[x][z];[z]palettegen[y];[x]fifo[x];[x][y]paletteuse',
+    '-r', f'{fps:.02f}',
+    '-f', 'gif',
+    '-',
+  ]
   try:
-    out, err = proc.communicate()
-    if proc.returncode:
-      raise IOError(f'Failed to run {cmd}\n{err.decode('utf8')}')
+    with Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE) as proc:
+      for image in frames:
+        proc.stdin.write(image.tobytes())
+      
+      out, err = proc.communicate()
+      if proc.returncode:
+        raise IOError(f'Failed to run {shlex.join(cmd)}\n{err.decode('utf8')}')
+      
+      return out
   except Exception as e:
-    printing.print_(f'Failed to run {cmd}')
+    printing.print_(f'Failed to run {shlex.join(cmd)}')
     raise e
-  del proc
-  return out
+  

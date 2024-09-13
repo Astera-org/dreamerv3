@@ -1,7 +1,7 @@
 import re
 from functools import partial as bind
 
-import embodied
+import embodied.core as embodied_core
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -25,7 +25,7 @@ sample = lambda dist: {
 class Agent(nj.Module):
 
   configs = yaml.YAML(typ='safe').load(
-      (embodied.Path(__file__).parent / 'configs.yaml').read())
+      (embodied_core.Path(__file__).parent / 'configs.yaml').read())
 
   def __init__(self, obs_space, act_space, config):
     self.obs_space = {
@@ -41,8 +41,8 @@ class Agent(nj.Module):
         k: v for k, v in obs_space.items()
         if k not in ('is_first', 'is_last', 'is_terminal', 'reward') and
         not k.startswith('log_') and re.match(config.dec.spaces, k)}
-    embodied.print('Encoder:', {k: v.shape for k, v in enc_space.items()})
-    embodied.print('Decoder:', {k: v.shape for k, v in dec_space.items()})
+    embodied_core.print('Encoder:', {k: v.shape for k, v in enc_space.items()})
+    embodied_core.print('Decoder:', {k: v.shape for k, v in dec_space.items()})
 
     # World Model
     self.enc = {
@@ -103,12 +103,12 @@ class Agent(nj.Module):
   @property
   def aux_spaces(self):
     spaces = {}
-    spaces['stepid'] = embodied.Space(np.uint8, 20)
+    spaces['stepid'] = embodied_core.Space(np.uint8, 20)
     if self.config.replay_context:
       latdtype = jaxutils.COMPUTE_DTYPE
       latdtype = np.float32 if latdtype == jnp.bfloat16 else latdtype
-      spaces['deter'] = embodied.Space(latdtype, self.config.dyn.rssm.deter)
-      spaces['stoch'] = embodied.Space(np.int32, self.config.dyn.rssm.stoch)
+      spaces['deter'] = embodied_core.Space(latdtype, self.config.dyn.rssm.deter)
+      spaces['stoch'] = embodied_core.Space(np.int32, self.config.dyn.rssm.stoch)
     return spaces
 
   def init_policy(self, batch_size):
@@ -127,7 +127,7 @@ class Agent(nj.Module):
     return self.init_train(batch_size)
 
   def policy(self, obs, carry, mode='train'):
-    self.config.jax.jit and embodied.print(
+    self.config.jax.jit and embodied_core.print(
         'Tracing policy function', color='yellow')
     prevlat, prevact = carry
     obs = self.preprocess(obs)
@@ -164,7 +164,7 @@ class Agent(nj.Module):
     return act, outs, (lat, act)
 
   def train(self, data, carry):
-    self.config.jax.jit and embodied.print(
+    self.config.jax.jit and embodied_core.print(
         'Tracing train function', color='yellow')
     data = self.preprocess(data)
     stepid = data.pop('stepid')
@@ -399,7 +399,7 @@ class Agent(nj.Module):
     return loss, (outs, carry, metrics)
 
   def report(self, data, carry):
-    self.config.jax.jit and embodied.print(
+    self.config.jax.jit and embodied_core.print(
         'Tracing report function', color='yellow')
     if not self.config.report:
       return {}, carry
