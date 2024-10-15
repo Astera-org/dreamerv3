@@ -68,6 +68,14 @@ def main():
     from embodied.envs import from_gymnasium
     from embodied.envs.minetest_wrapper import MinetestWrapper
     env = MinetestWrapper("boad")
+    # env = gymnasium.wrappers.TimeLimit(env, 1000)
+    # env = gymnasium.wrappers.RecordVideo(env, config.logdir + "/video", lambda _: True, lambda _: True)
+    return dreamerv3.wrap_env(from_gymnasium.FromGymnasium(env), config)
+
+  def make_eval_env(config, env_id=0):
+    from embodied.envs import from_gymnasium
+    from embodied.envs.minetest_wrapper import MinetestWrapper
+    env = MinetestWrapper("boad")
     env = gymnasium.wrappers.TimeLimit(env, 1000)
     env = gymnasium.wrappers.RecordVideo(env, config.logdir + "/video", lambda _: True, lambda _: True)
     return dreamerv3.wrap_env(from_gymnasium.FromGymnasium(env), config)
@@ -84,10 +92,12 @@ def main():
   with mlflow.start_run():
     mlflow.log_artifact(logdir / 'config.yaml')
 
-    embodied.run.eval_only(
+    embodied.run.train_eval(
         bind(make_agent, config),
-        # bind(make_replay, config),
+        bind(make_replay, config),
+        bind(make_replay, config),
         bind(make_env, config),
+        bind(make_eval_env, config),
         bind(make_logger, config), args)
 
 
