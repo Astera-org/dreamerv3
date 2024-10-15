@@ -59,12 +59,33 @@ def main():
         # embodied.logger.WandbOutput(logdir.name, config=config),
     ])
 
-  def make_replay(config):
-    return embodied.replay.Replay(
-        length=config.batch_length,
-        capacity=config.replay.size,
-        directory=embodied.Path(config.logdir) / 'replay',
-        online=config.replay.online)
+  def make_replay(config, directory=None, is_eval=False, rate_limit=False):
+    directory = directory and embodied.Path(config.logdir) / directory
+    size = int(config.replay.size / 10 if is_eval else config.replay.size)
+    length = config.replay_length_eval if is_eval else config.replay_length
+    kwargs = {}
+    kwargs['online'] = config.replay.online
+    if rate_limit and config.run.train_ratio > 0:
+      kwargs['samples_per_insert'] = config.run.train_ratio / (
+          length - config.replay_context)
+      kwargs['tolerance'] = 5 * config.batch_size
+      kwargs['min_size'] = min(
+          max(config.batch_size, config.run.train_fill), size)
+    selectors = embodied.replay.selectors
+    if config.replay.fracs.uniform < 1 and not is_eval:
+      assert config.jax.compute_dtype in ('bfloat16', 'float32'), (
+          'Gradient scaling for low-precision training can produce invalid loss '
+          'outputs that are incompatible with prioritized replay.')
+      import numpy as np
+      recency = 1.0 / np.arange(1, size + 1) ** config.replay.recexp
+      kwargs['selector'] = selectors.Mixture(dict(
+          uniform=selectors.Uniform(),
+          priority=selectors.Prioritized(**config.replay.prio),
+          recency=selectors.Recency(recency),
+      ), config.replay.fracs)
+    kwargs['chunksize'] = config.replay.chunksize
+    replay = embodied.replay.Replay(length, size, directory, **kwargs)
+    return replay
 
   def make_env(config, env_id=0):
     from embodied.envs import from_gymnasium
@@ -96,8 +117,8 @@ def main():
 
     embodied.run.train_eval(
         bind(make_agent, config),
-        bind(make_replay, config),
-        bind(make_replay, config),
+        bind(make_replay, config, 'replay'),
+        bind(make_replay, config, 'eval_replay', is_eval=True),
         bind(make_env, config),
         bind(make_eval_env, config),
         bind(make_logger, config), args)
