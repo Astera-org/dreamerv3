@@ -399,7 +399,8 @@ def _encode_gif(frames, fps):
   try:
     out, err = proc.communicate()
     if proc.returncode:
-      raise IOError(f'Failed to run {cmd}\n{err.decode('utf8')}')
+      err_utf8 = err.decode('utf8')
+      raise IOError(f'Failed to run {cmd}\n{err_utf8}')
   except Exception as e:
     printing.print_(f'Failed to run {cmd}')
     raise e
