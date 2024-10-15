@@ -708,7 +708,7 @@ packages:
   name: dreamerv3
   version: 0.1.0
   path: .
-  sha256: 9f55dbdbcb59a95ce9d8d927f23ede81b9c311446870d3a434f00217b111493a
+  sha256: 85fd5720bf46029ed36f55283a1f3ed59a85add2612978f970542796b54264a1
   requires_dist:
   - numpy~=1.0
   - cloudpickle
@@ -728,6 +728,7 @@ packages:
   - tensorflow-cpu>=2.17.0,<3
   - zmq>=0.0.0,<0.0.1
   - mlflow>=2.16.0,<3
+  - moviepy>=1.0.3,<2
   requires_python: ~=3.11
   editable: true
 - kind: pypi
