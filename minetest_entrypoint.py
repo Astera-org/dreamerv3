@@ -2,6 +2,7 @@ import os
 import warnings
 from functools import partial as bind
 
+import gymnasium.wrappers.time_limit
 import jax
 import gymnasium
 import dreamerv3
@@ -66,7 +67,10 @@ def main():
   def make_env(config, env_id=0):
     from embodied.envs import from_gymnasium
     from embodied.envs.minetest_wrapper import MinetestWrapper
-    return dreamerv3.wrap_env(from_gymnasium.FromGymnasium(gymnasium.wrappers.RecordVideo(MinetestWrapper("boad"), config.logdir + "/video")), config)
+    env = MinetestWrapper("boad")
+    env = gymnasium.wrappers.TimeLimit(env, 1000)
+    env = gymnasium.wrappers.RecordVideo(env, config.logdir + "/video", lambda _: True, lambda _: True)
+    return dreamerv3.wrap_env(from_gymnasium.FromGymnasium(env), config)
 
   args = embodied.Config(
       **config.run,
@@ -80,9 +84,9 @@ def main():
   with mlflow.start_run():
     mlflow.log_artifact(logdir / 'config.yaml')
 
-    embodied.run.train(
+    embodied.run.eval_only(
         bind(make_agent, config),
-        bind(make_replay, config),
+        # bind(make_replay, config),
         bind(make_env, config),
         bind(make_logger, config), args)
 
