@@ -77,7 +77,7 @@ def main():
     from embodied.envs.minetest_wrapper import MinetestWrapper
     env = MinetestWrapper("boad")
     env = gymnasium.wrappers.TimeLimit(env, 1000)
-    env = gymnasium.wrappers.RecordVideo(env, config.logdir + "/video", episode_trigger=lambda _: True)
+    env = gymnasium.wrappers.RecordVideo(env, config.logdir + f"/video-{env_id:02}", episode_trigger=lambda _: True)
     return dreamerv3.wrap_env(from_gymnasium.FromGymnasium(env), config)
 
   args = embodied.Config(
