@@ -3,7 +3,7 @@ import warnings
 from functools import partial as bind
 
 import jax
-
+import gymnasium
 import dreamerv3
 import embodied
 import mlflow
@@ -66,7 +66,7 @@ def main():
   def make_env(config, env_id=0):
     from embodied.envs import from_gymnasium
     from embodied.envs.minetest_wrapper import MinetestWrapper
-    return dreamerv3.wrap_env(from_gymnasium.FromGymnasium(MinetestWrapper("boad")), config)
+    return dreamerv3.wrap_env(from_gymnasium.FromGymnasium(gymnasium.wrappers.RecordVideo(MinetestWrapper("boad"), config.logdir + "/video")), config)
 
   args = embodied.Config(
       **config.run,
