@@ -78,7 +78,7 @@ def train_eval(
   train_driver.on_step(train_replay.add)
   train_driver.on_step(bind(log_step, mode='train'))
 
-  fns = [bind(make_eval_env, i) for i in range(args.num_envs)]
+  fns = [bind(make_eval_env, i) for i in range(args.num_envs_eval)]
   eval_driver = embodied.Driver(fns, args.driver_parallel)
   eval_driver.on_step(eval_replay.add)
   eval_driver.on_step(bind(log_step, mode='eval'))
