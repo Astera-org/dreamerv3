@@ -62,7 +62,7 @@ def main():
   def make_replay(config, directory=None, is_eval=False, rate_limit=False):
     directory = directory and embodied.Path(config.logdir) / directory
     size = int(config.replay.size / 10 if is_eval else config.replay.size)
-    length = config.replay_length_eval if is_eval else config.replay_length
+    length = config.replay_length_eval or config.batch_length_eval if is_eval else config.replay_length or config.batch_length
     kwargs = {}
     kwargs['online'] = config.replay.online
     if rate_limit and config.run.train_ratio > 0:
