@@ -84,6 +84,7 @@ defaults:
     dmc: {size: [64, 64], repeat: 2, image: True, camera: -1}
     procgen: {size: [64, 64]}
     loconav: {size: [64, 64], repeat: 2, camera: -1}
+    minetest: {}
 
   # Agent
   report: True
@@ -230,13 +231,22 @@ crafter:
   enc.spaces: 'image'
   dec.spaces: 'image'
 
-# TODO: Use config instead of entrypoint?
 minetest:
-  enc.spaces: 'image|health|hunger|thirst'
-  dec.spaces: 'image|health|hunger|thirst'
+  <<: *size50m
+  task: minetest_boad
+  enc:
+    spaces: 'image|health|hunger|thirst'
+    simple.minres: 8
+  dec:
+    spaces: 'image|health|hunger|thirst'
+    simple.minres: 8
+  batch_size: 2
   run:
+    num_envs: 4
+    num_envs_eval: 4
     log_video_fps: 6
     train_ratio: 512
+    eval_every: 900 # seconds
 
 dmc_proprio:
   <<: *size12m

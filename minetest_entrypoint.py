@@ -26,15 +26,15 @@ def main():
       'logdir': f'./logs/{embodied.timestamp()}/',
       'run.log_video_fps': 6,
       'run.train_ratio': 512,
-      'run.num_envs_eval': 1,
       'run.eval_every': 600, # seconds
       # Set 'run.driver_parallel': False and 'run.num_envs': 1 to see stacktrace when env fails.
-      'run.num_envs': 8,
+      'run.num_envs': 4,
+      'run.num_envs_eval': 1,
       'enc.simple.minres': 8, # solves shape mismatch
       'dec.simple.minres': 8, # solves shape mismatch
       'enc.spaces': 'image|health|hunger|thirst',
       'dec.spaces': 'image|health|hunger|thirst',
-      'batch_size': 4, # oom
+      'batch_size': 2, # oom
   })
   config = embodied.Flags(config).parse()
 

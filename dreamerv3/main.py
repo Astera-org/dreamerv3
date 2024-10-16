@@ -5,6 +5,11 @@ import sys
 import warnings
 from functools import partial as bind
 
+import embodied
+from embodied import wrappers
+from embodied.envs import from_gymnasium
+from embodied.envs.minetest_wrapper import MinetestWrapper
+
 directory = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(directory.parent))
 sys.path.insert(0, str(directory.parent.parent))
@@ -14,9 +19,6 @@ warnings.filterwarnings('ignore', '.*box bound precision lowered.*')
 warnings.filterwarnings('ignore', '.*using stateful random seeds*')
 warnings.filterwarnings('ignore', '.*is a deprecated alias for.*')
 warnings.filterwarnings('ignore', '.*truncated to dtype int32.*')
-
-import embodied
-from embodied import wrappers
 
 
 def main(argv=None):
@@ -190,8 +192,9 @@ def make_replay(config, directory=None, is_eval=False, rate_limit=False):
 
 def make_env(config, index, **overrides):
   suite, task = config.task.split('_', 1)
-  if suite == 'memmaze':
+  if suite in ('memmaze', 'minetest'):
     from embodied.envs import from_gym
+  if suite == 'memmaze':
     import memory_maze  # noqa
   ctor = {
       'dummy': 'embodied.envs.dummy:Dummy',
@@ -208,6 +211,7 @@ def make_env(config, index, **overrides):
       'langroom': 'embodied.envs.langroom:LangRoom',
       'procgen': 'embodied.envs.procgen:ProcGen',
       'bsuite': 'embodied.envs.bsuite:BSuite',
+      'minetest': lambda *args, **kwargs: from_gymnasium.FromGymnasium(MinetestWrapper(*args, **kwargs)),
       'memmaze': lambda task, **kw: from_gym.FromGym(
           f'MemoryMaze-{task}-ExtraObs-v0', **kw),
   }[suite]
