@@ -1,3 +1,14 @@
-*.py[cod]
-__pycache__/
+.pytest_cache
 dist
+__pycache__/
+*.py[cod]
+*.egg-info
+MUJOCO_LOG.TXT
+;
+/.venv/
+/logs/
+/jax_cache/
+/scores/
+# pixi environments
+.pixi
+*.egg-info

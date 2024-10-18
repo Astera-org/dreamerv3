@@ -1,3 +1,11 @@
+# Astera specific
+
+## Train dreamerv3 on minetest_boad through launch
+
+```sh
+launch submit --gpus 1 -- python dreamerv3/main.py --logdir '/logdir/{timestamp}' --configs minetest --task minetest_boad
+```
+
 # Mastering Diverse Domains through World Models
 
 A reimplementation of [DreamerV3][paper], a scalable and general reinforcement
