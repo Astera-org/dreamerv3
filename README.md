@@ -5,7 +5,7 @@
 on your machine
 
 ```sh
-  python dreamerv3/main.py --logdir '/logdir/{timestamp}' --configs minetest --task minetest_boad
+python dreamerv3/main.py --logdir '/logdir/{timestamp}' --configs minetest --task minetest_boad
 ```
 
 through launch

@@ -13,7 +13,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     # ca-certificates is needed to verify the authenticity of servers hosting dependencies
     ca-certificates \
     # curl is needed for our preferred uv installation method
-    curl
+    curl \
+    # mesa-utils is needed for minetest
+    mesa-utils
 
 # RUN apt-get update && apt-get install -y \
 #   ffmpeg git vim curl software-properties-common \
@@ -55,11 +57,3 @@ ENV GCS_METADATA_REQUEST_TIMEOUT_SECS=300
 ENV GCS_READ_REQUEST_TIMEOUT_SECS=300
 ENV GCS_WRITE_REQUEST_TIMEOUT_SECS=600
 RUN chown 1000:root . && chmod 775 .
-
-# Use apt in docker best practices, see https://docs.docker.com/reference/dockerfile/#example-cache-apt-packages.
-RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends \
-    # mesa-utils is needed for minetest
-    mesa-utils
