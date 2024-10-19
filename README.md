@@ -1,9 +1,23 @@
 # Astera specific
 
-## Train dreamerv3 on minetest_boad through launch
+## Train dreamerv3 on minetest_boad
+
+on your machine
 
 ```sh
-launch submit --gpus 1 -- python dreamerv3/main.py --logdir '/logdir/{timestamp}' --configs minetest --task minetest_boad
+  python dreamerv3/main.py --logdir '/logdir/{timestamp}' --configs minetest --task minetest_boad
+```
+
+through launch
+
+```sh
+launch submit --gpus 1 -- <command>
+```
+
+or docker
+
+```sh
+docker run --rm --gpus device=5 -v "$HOME/.databrickscfg:/root/.databrickscfg" -it dreamerv3 -- <command>
 ```
 
 # Mastering Diverse Domains through World Models
