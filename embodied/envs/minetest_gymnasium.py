@@ -5,7 +5,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from typing import Any, Iterator, Optional, SupportsFloat
 
-import gymnasium as gym
+import gymnasium
 import minetest.minetest_env
 import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
@@ -105,13 +105,13 @@ def _write_boad_config(config: dict[str, Any], game_dir: str) -> None:
 
 
 BOAD_ADDITIONAL_OBSERVATION_SPACES = {
-    "health": gym.spaces.Box(0, 20, (1,), dtype=np.float32),
-    "hunger": gym.spaces.Box(0, 1000, (1,), dtype=np.float32),
-    "thirst": gym.spaces.Box(0, 1000, (1,), dtype=np.float32),
+    "health": gymnasium.spaces.Box(0, 20, (1,), dtype=np.float32),
+    "hunger": gymnasium.spaces.Box(0, 1000, (1,), dtype=np.float32),
+    "thirst": gymnasium.spaces.Box(0, 1000, (1,), dtype=np.float32),
 }
 
 
-class MinetestWrapper(gym.Wrapper):
+class MinetestGymnasium(gymnasium.Wrapper):
     def __init__(self, game: str, screen_size: int = 128, config: Optional[dict[str, Any]] = None):
         """Wrapper for the MineRL environments.
 
@@ -148,7 +148,7 @@ class MinetestWrapper(gym.Wrapper):
         )
         super().__init__(env)
         self._action_dicts = get_action_dicts(keyboard_action_keys, mouse_action_keys)
-        self.action_space = gym.spaces.Discrete(len(keyboard_action_keys) + len(mouse_action_keys))
+        self.action_space = gymnasium.spaces.Discrete(len(keyboard_action_keys) + len(mouse_action_keys))
 
     def step(self, action_idx: WrapperActType) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         action_dict = self._action_dicts[action_idx]

@@ -10,7 +10,7 @@ import jax
 import embodied
 from embodied import wrappers
 from embodied.envs import from_gymnasium
-from embodied.envs.minetest_wrapper import MinetestWrapper
+from embodied.envs.minetest_gymnasium import MinetestGymnasium
 
 directory = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(directory.parent))
@@ -225,7 +225,7 @@ def make_env(config, index, **overrides):
       'langroom': 'embodied.envs.langroom:LangRoom',
       'procgen': 'embodied.envs.procgen:ProcGen',
       'bsuite': 'embodied.envs.bsuite:BSuite',
-      'minetest': lambda *args, **kwargs: from_gymnasium.FromGymnasium(MinetestWrapper(*args, **kwargs)),
+      'minetest': lambda *args, **kwargs: from_gymnasium.FromGymnasium(MinetestGymnasium(*args, **kwargs)),
       'memmaze': lambda task, **kw: from_gym.FromGym(
           f'MemoryMaze-{task}-ExtraObs-v0', **kw),
   }[suite]
