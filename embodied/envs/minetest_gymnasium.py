@@ -10,7 +10,6 @@ import minetest.minetest_env
 import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 from minetest.minetest_env import KEY_MAP as KEYBOARD_ACTION_KEYS
-from .observation_reward_system import ObservationRewardSystem, SatiationRewardSystem
 
 # Keyboard actions
 N_KEYBOARD_ACTIONS = len(KEYBOARD_ACTION_KEYS)
@@ -86,12 +85,51 @@ def get_action_dicts(
     return action_dicts
 
 
-def _get_boad_config(hunger_rate: int = 20, thirst_rate: int = 20, allow_night: bool = False, apple_scale: float = 2.5, rose_scale: float = 1.5, **kwargs) -> str:
-    return f"""STARVE_1_MUL={hunger_rate}
-STARVE_2_MUL={thirst_rate}
-ALLOW_NIGHT={int(allow_night)}
-APPLE_SCALE={apple_scale}
-ROSE_SCALE={rose_scale}
+def _get_boad_config(
+    food_consumption_per_second: int = 20,
+    water_consumption_per_second: int = 20,
+    disable_night: bool = True,
+    apple_scale: float = 2.5,
+    rose_scale: float = 1.5,
+    food_gain_reward: float = 0.0,
+    water_gain_reward: float = 0.0,
+    rose_gain_reward: float = 1.0,
+    death_reward: float = -5.0,
+) -> str:
+    return f"""\
+-- Set to a number to fix the rng seed.
+--RANDOM_SEED=nil
+
+BOAD_DISABLE_NIGHT={"true" if disable_night else "false"}
+
+-- Automatic respawn does not work well in our minetest fork, this avoids death while still penalizing would-be-death.
+BOAD_DEATH_WORKAROUND=true
+
+-- Arena configuration
+-- BOAD_ARENA_SIZE=60
+-- BOAD_NUM_SNOW=10
+-- BOAD_NUM_APPLE=10
+-- BOAD_APPLE_DESPAWN_CHANCE_PERCENTAGE=25
+-- BOAD_SNOW_DESPAWN_CHANCE_PERCENTAGE=25
+-- BOAD_RESPAWN_FOOD=true
+BOAD_APPLE_SCALE={apple_scale}
+BOAD_ROSE_SCALE={rose_scale}
+
+-- Starvation configuration
+-- BOAD_FOOD_MAX=1000
+BOAD_FOOD_CONSUMPTION_PER_SECOND={food_consumption_per_second}
+-- BOAD_STARVATION_DAMAGE_PER_SECOND=1
+
+-- Dehydration configuration
+-- BOAD_WATER_MAX=1000
+BOAD_WATER_CONSUMPTION_PER_SECOND={water_consumption_per_second}
+-- BOAD_DEHYDRATION_DAMAGE_PER_SECOND=1
+
+-- Score configuration
+BOAD_FOOD_GAIN_REWARD={food_gain_reward}
+BOAD_WATER_GAIN_REWARD={water_gain_reward}
+BOAD_ROSE_GAIN_REWARD={rose_gain_reward}
+BOAD_DEATH_REWARD={death_reward}
 """
 
 
@@ -99,6 +137,8 @@ def _write_boad_config(config: dict[str, Any], game_dir: str) -> None:
     if config is None:
         config = {}
     boad_config = _get_boad_config(**config)
+    print("boad config:\n", boad_config)
+    exit()
     config_path = os.path.join(game_dir, "config.lua")
     with open(config_path, "w") as f:
         f.write(boad_config)
@@ -106,13 +146,13 @@ def _write_boad_config(config: dict[str, Any], game_dir: str) -> None:
 
 BOAD_ADDITIONAL_OBSERVATION_SPACES = {
     "health": gymnasium.spaces.Box(0, 20, (1,), dtype=np.float32),
-    "hunger": gymnasium.spaces.Box(0, 1000, (1,), dtype=np.float32),
-    "thirst": gymnasium.spaces.Box(0, 1000, (1,), dtype=np.float32),
+    "food": gymnasium.spaces.Box(0, 1000, (1,), dtype=np.float32),
+    "water": gymnasium.spaces.Box(0, 1000, (1,), dtype=np.float32),
 }
 
 
 class MinetestGymnasium(gymnasium.Wrapper):
-    def __init__(self, game: str, screen_size: int = 128, config: Optional[dict[str, Any]] = None):
+    def __init__(self, game: str, screen_size: int = 128, config: Optional[dict[str, Any]] = None, **kwargs):
         """Wrapper for the MineRL environments.
 
         Args:
@@ -128,12 +168,11 @@ class MinetestGymnasium(gymnasium.Wrapper):
         temp_dir = tempfile.mkdtemp(prefix="minetest_")
         game_dir = os.path.join(os.environ["CONDA_PREFIX"], "share/minetest/games/", game)
 
-        if game == "boad":
+        if game == "boad" or game == "boad_local":
             _write_boad_config(config, game_dir)
             additional_observation_spaces = BOAD_ADDITIONAL_OBSERVATION_SPACES
             keyboard_action_keys = BOAD_KEYBOARD_ACTION_KEYS
             mouse_action_keys = BOAD_MOUSE_ACTION_KEYS
-            self._observation_reward_systems.append(SatiationRewardSystem(["hunger", "thirst"], reward_value=0.1))
         else:
             additional_observation_spaces = {}
             keyboard_action_keys = KEYBOARD_ACTION_KEYS
@@ -145,6 +184,7 @@ class MinetestGymnasium(gymnasium.Wrapper):
             game_dir=game_dir,
             additional_observation_spaces=additional_observation_spaces,
             verbose_logging=True,
+            **kwargs,
         )
         super().__init__(env)
         self._action_dicts = get_action_dicts(keyboard_action_keys, mouse_action_keys)

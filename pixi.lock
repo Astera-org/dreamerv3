@@ -116,7 +116,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/luajit-openresty-2.1_20240815-h4bc722e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/lz4-c-1.9.4-hcb278e6_0.conda
       - conda: https://repo.prefix.dev/obelisk/linux-64/minetest-0.14-hb0f4dca_0.conda
-      - conda: https://repo.prefix.dev/obelisk/noarch/minetest-boad-0.12.0-h4616a5c_0.conda
+      - conda: https://repo.prefix.dev/obelisk/noarch/minetest-boad-0.13.1-h4616a5c_0.conda
       - conda: https://repo.prefix.dev/obelisk/noarch/minetest-gymnasium-0.19-pyh4616a5c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/mpg123-1.32.6-h59595ed_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-he02047a_1.conda
@@ -246,6 +246,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4c/21/9ca93b84b92ef927814cb7ba37f0774a484c849d58f0b692b16af8eebcfb/pyarrow-17.0.0-cp311-cp311-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/c8/f1/d6a797abb14f6283c0ddff96bbdd46937f64122b8c925cab503dd37f8214/pyasn1-0.6.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/77/89/bc88a6711935ba795a679ea6ebee07e128050d6382eaa35a0a47c8032bdc/pyasn1_modules-0.4.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/7a/a1/9ae2852ebd3a7cc7d9ae7ff7919ab983e4a5c1b7a14e840732f23b2b48f6/pygame-2.6.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/f7/3f/01c8b82017c199075f8f788d0d906b9ffbbc5a47dc9918a945e13d5a2bda/pygments-2.18.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/be/ec/2eb3cd785efd67806c46c13a17339708ddc346cbb684eade7a6e6f79536a/pyparsing-3.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl
@@ -703,7 +704,7 @@ packages:
   name: dreamerv3
   version: 0.1.0
   path: .
-  sha256: 802ce9ec3f0c4184ae206e169037887cf9da9e60fab12ba9d86c0d9067862620
+  sha256: 75343169486b0a7b64c0f2cec9b97ea9a8f14b2df1345603af55d3ad764c9f64
   requires_dist:
   - numpy~=1.0
   - cloudpickle
@@ -724,6 +725,7 @@ packages:
   - zmq>=0.0.0,<0.0.1
   - mlflow>=2.16.0,<3
   - moviepy>=1.0.3,<2
+  - pygame>=2.6.1,<3
   requires_python: '>=3.11,<3.12'
   editable: true
 - kind: pypi
@@ -3152,16 +3154,16 @@ packages:
   timestamp: 1724349476732
 - kind: conda
   name: minetest-boad
-  version: 0.12.0
+  version: 0.13.1
   build: h4616a5c_0
   subdir: noarch
   noarch: generic
-  url: https://repo.prefix.dev/obelisk/noarch/minetest-boad-0.12.0-h4616a5c_0.conda
-  sha256: f41056d056217a35a869cb3e7d4e149d864b2403bebced451191e6af25ea9cce
+  url: https://repo.prefix.dev/obelisk/noarch/minetest-boad-0.13.1-h4616a5c_0.conda
+  sha256: 0afa32c606c7bcca3f21816d61a0b915314b955da7122cc7550ef9ad6ec87df5
   depends:
   - minetest
-  size: 202216
-  timestamp: 1722304080846
+  size: 196610
+  timestamp: 1729721687468
 - kind: conda
   name: minetest-gymnasium
   version: '0.19'
@@ -3961,6 +3963,12 @@ packages:
   - pkg:pypi/pycapnp?source=hash-mapping
   size: 554135
   timestamp: 1720569226157
+- kind: pypi
+  name: pygame
+  version: 2.6.1
+  url: https://files.pythonhosted.org/packages/7a/a1/9ae2852ebd3a7cc7d9ae7ff7919ab983e4a5c1b7a14e840732f23b2b48f6/pygame-2.6.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  sha256: ce8cc108b92de9b149b344ad2e25eedbe773af0dc41dfb24d1f07f679b558c60
+  requires_python: '>=3.6'
 - kind: pypi
   name: pygments
   version: 2.18.0

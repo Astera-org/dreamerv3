@@ -84,7 +84,10 @@ defaults:
     dmc: {size: [64, 64], repeat: 2, image: True, camera: -1}
     procgen: {size: [64, 64]}
     loconav: {size: [64, 64], repeat: 2, camera: -1}
-    minetest: {}
+    minetest:
+      config:
+        food_gain_reward: 0.1
+        water_gain_reward: 0.1
 
   # Agent
   report: True
