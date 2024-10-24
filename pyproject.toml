@@ -35,7 +35,7 @@ requires = ["hatchling"]
 packages = ["."]
 
 [tool.pixi.project]
-channels = ["conda-forge", "https://repo.prefix.dev/obelisk"]
+channels = ["conda-forge", "file:///home/mick/astera/minetest/output", "https://repo.prefix.dev/obelisk"]
 platforms = ["linux-64"]
 
 [tool.pixi.pypi-dependencies]
@@ -45,6 +45,6 @@ dreamerv3 = { path = ".", editable = true }
 
 [tool.pixi.dependencies]
 gymnasium = ">=0.29.1,<0.30"
-minetest-boad = ">=0.13.1,<0.14"
-minetest-gymnasium = { version = ">=0.16,<1", channel = "https://repo.prefix.dev/obelisk" }
+minetest-boad = { version = ">=0.13.1,<0.14", channel = "https://repo.prefix.dev/obelisk" }
+minetest-gymnasium = { version = ">=0.16,<1", channel = "file:///home/mick/astera/minetest/output" }
 ffmpeg = ">=7.0.2,<8"
