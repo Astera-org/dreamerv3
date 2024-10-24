@@ -1,7 +1,7 @@
 import signal
 import pygame
 
-from embodied.envs.minetest_gymnasium import MinetestGymnasium
+from embodied.envs.minetest_gymnasium import BoadConfig, MinetestGymnasium
 
 KEY_TO_ACTION_INDEX = dict([
     (pygame.K_w, 0),
@@ -48,9 +48,9 @@ if __name__ == "__main__":
 
     pygame.init()
 
-    config = {
-        'food_consumption_rate': 100,
-        'water_consumption_rate': 100,
+    config: BoadConfig = {
+        'food_consumption_per_second': 100,
+        'water_consumption_per_second': 100,
     }
 
     with MinetestGymnasium("boad", screen_size=1024, config=config, render_mode='human') as env:

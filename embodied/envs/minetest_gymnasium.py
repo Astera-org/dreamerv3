@@ -3,7 +3,7 @@ import os
 import tempfile
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Iterator, Optional, SupportsFloat
+from typing import Any, Callable, Iterator, Optional, SupportsFloat, TypedDict, Unpack
 
 import gymnasium
 import minetest.minetest_env
@@ -85,6 +85,18 @@ def get_action_dicts(
     return action_dicts
 
 
+class BoadConfig(TypedDict, total=False):
+    food_consumption_per_second: int
+    water_consumption_per_second: int
+    disable_night: bool
+    apple_scale: float
+    rose_scale: float
+    food_gain_reward: float
+    water_gain_reward: float
+    rose_gain_reward: float
+    death_reward: float
+
+
 def _get_boad_config(
     food_consumption_per_second: int = 20,
     water_consumption_per_second: int = 20,
@@ -133,15 +145,11 @@ BOAD_DEATH_REWARD={death_reward}
 """
 
 
-def _write_boad_config(config: dict[str, Any], game_dir: str) -> None:
-    if config is None:
-        config = {}
-    boad_config = _get_boad_config(**config)
-    print("boad config:\n", boad_config)
-    exit()
+def _write_boad_config(config: BoadConfig, game_dir: str) -> None:
+    config_lua = _get_boad_config(**(config or {}))
     config_path = os.path.join(game_dir, "config.lua")
     with open(config_path, "w") as f:
-        f.write(boad_config)
+        f.write(config_lua)
 
 
 BOAD_ADDITIONAL_OBSERVATION_SPACES = {
@@ -163,7 +171,7 @@ class MinetestGymnasium(gymnasium.Wrapper):
                 Default to None
         """
 
-        self._observation_reward_systems: list[ObservationRewardSystem] = []
+        self._observation_reward_systems: list[Callable[[WrapperObsType], float]] = []
 
         temp_dir = tempfile.mkdtemp(prefix="minetest_")
         game_dir = os.path.join(os.environ["CONDA_PREFIX"], "share/minetest/games/", game)
@@ -197,7 +205,7 @@ class MinetestGymnasium(gymnasium.Wrapper):
             action = {"keys": keyboard_action, "mouse": action_dict["mouse"]}
             obs, reward, terminated, truncated, info = self.env.step(action)
             cum_reward += reward
-            cum_reward += sum(ors.get_reward(obs) for ors in self._observation_reward_systems)
+            cum_reward += sum(ors(obs) for ors in self._observation_reward_systems)
             if terminated or truncated:
                 break
         return obs, cum_reward, terminated, truncated, info
